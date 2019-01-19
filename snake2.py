@@ -70,12 +70,13 @@ class Snake:
 		self.parts = [
 			SnakePart("head_down", 5, 13, Direction.DOWN),
 			SnakePart("body_vertical", 5, 12, Direction.DOWN),
-			# SnakePart("body_vertical", 5, 11, Direction.DOWN),
-			SnakePart("tail_down", 5, 11, Direction.DOWN)
+			SnakePart("body_vertical", 5, 11, Direction.DOWN),
+			SnakePart("tail_down", 5, 10, Direction.DOWN)
 		]
 		self.previous_direction = Direction.DOWN
 		self.direction = Direction.DOWN
 		self.state = State.READY
+		self._grow = False
 
 	def draw(self, screen):
 		for part in self.parts:
@@ -85,7 +86,7 @@ class Snake:
 		if self.state == State.PLAYING:
 			head = self.parts[0]
 			tail = self.parts[-1]
-			last_last_but_one = self.parts[-2]
+			previous_last_but_one = self.parts[-2]
 
 			if self.direction == Direction.DOWN:
 				new_head = SnakePart("head_down", head.x, head.y + 1, Direction.DOWN)
@@ -137,12 +138,19 @@ class Snake:
 					new_part = "turn_1"
 
 			self.parts[0] = new_head
-			self.parts[1] = SnakePart(new_part, head.x, head.y, self.previous_direction)
 
-
-
+			# Insert New Part Behind Head
+			self.parts.insert(1, SnakePart(new_part, head.x, head.y, self.previous_direction))
 			self.previous_direction = self.direction
 
+			if self._grow:
+				self._grow = False
+				return
+
+			# Remove Part From Back
+			self.parts.pop(-2)
+
+			# Tail Calculation
 			last_but_one = self.parts[-2]
 
 			if last_but_one.direction == Direction.DOWN:
@@ -154,8 +162,8 @@ class Snake:
 			elif last_but_one.direction == Direction.LEFT:
 				tail_name = "tail_left"
 
-			self.parts[-1] = SnakePart(tail_name, last_last_but_one.x, last_last_but_one.y, last_but_one.direction)
-			print(list(map(lambda x: (x.direction, x.x, x.y), self.parts)), "\n")
+			self.parts[-1] = SnakePart(tail_name, previous_last_but_one.x, previous_last_but_one.y, last_but_one.direction)
+
 
 
 	def start(self):
@@ -176,6 +184,8 @@ class Snake:
 		else:
 			self.direction = direction
 
+	def grow(self):
+		self._grow = True
 
 s = Snake()
 
@@ -196,6 +206,8 @@ while True:
         		s.turn(Direction.UP)
         	elif event.key == K_LEFT:
         		s.turn(Direction.LEFT)
+        	elif event.key == K_RETURN:
+        		s.grow()
 
     # Calculations
     s.move()
