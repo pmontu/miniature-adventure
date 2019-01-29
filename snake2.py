@@ -1,12 +1,10 @@
 import sys
 import collections
+import os
 from enum import Enum, auto
 
 import pygame
 from pygame.locals import *
-
-from constants import *
-
 
 pygame.init()
 
@@ -40,6 +38,15 @@ def load_snake_tiles():
 			images[tiles[i][j]] = surface
 	return images
 
+# Constants
+size = width, height = 600, 600
+cell = 25
+
+white = 255, 255, 255
+black = 0, 0, 0
+
+xn = width // cell
+yn = height // cell
 
 # Screen
 screen = pygame.display.set_mode(size)
@@ -164,8 +171,6 @@ class Snake:
 
 			self.parts[-1] = SnakePart(tail_name, previous_last_but_one.x, previous_last_but_one.y, last_but_one.direction)
 
-
-
 	def start(self):
 		if self.state == State.READY or self.state == State.PAUSED:
 			self.state = State.PLAYING
@@ -188,10 +193,13 @@ class Snake:
 		self._grow = True
 
 s = Snake()
+clock = pygame.time.Clock()
 
 while True:
 
 	# Events
+	# pygame.event.pump()
+ #    keys = pygame.key.get_pressed()
     for event in pygame.event.get():
         if event.type == QUIT:
             sys.exit()
@@ -219,5 +227,7 @@ while True:
     		screen.blit(background[i][j], (i * cell, j * cell))
     s.draw(screen)
 
-    pygame.display.flip()
-    pygame.time.delay(600)
+    # pygame.display.flip()
+    pygame.display.update()
+    # pygame.time.delay(200)
+    clock.tick(2)
